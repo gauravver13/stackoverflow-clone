@@ -11,4 +11,10 @@ export default async function createCommentCollection() {
     ])
     
     console.log('Users were updated..!>'); 
+
+    Promise.all([
+        databases.createStringAttribute(db, commentCollection, "content", 100, true),
+        databases.createStringAttribute(db, commentCollection, "typeId", 100, true),
+        databases.createStringAttribute(db, commentCollection, "authorId", 100, true)
+    ])
 }

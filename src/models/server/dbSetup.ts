@@ -1,32 +1,36 @@
-import { Permission } from "node-appwrite";
-import { questionAttachmentBucket } from "../name";
-import { storage } from "./config";
+import { db } from "../name";
 
+import createQuestionCollection from "./question.collection";
+import createAnswerCollection from "./answer.collection";
+import createCommentCollection from "./comment.collection";
+import createVoteCollection from "./vote.collection";
 
+import { databases } from "./config";
 
-export default async function getOrCreateStorage() {
+export default async function getOrCreateDB() {
     try {
-        await storage.getBucket(questionAttachmentBucket)
-        console.log("Storage Connected");
+        await databases.get(db)
+        console.log('Database connected');
+        
     } catch (error) {
         try {
-            await storage.createBucket(
-                questionAttachmentBucket, 
-                questionAttachmentBucket, 
-                [
-                Permission.create("users"),
-                Permission.read("users"),
-                Permission.update("users"),
-                Permission.delete("users"),
-            ],
-        false,
-        undefined,
-        undefined,
-        ['jpg', 'png', 'jpeg', 'webp', 'heic'],
-        
-    )
-        } catch (error) {
+            await databases.create(db, db)
+            console.log('Database Created');
+
+            //create collections
+            await Promise.all([
+                createQuestionCollection(),
+                createAnswerCollection(),
+                createCommentCollection(),
+                createVoteCollection(),
+            ])
+            console.log('Collection created');
+            console.log("Databse connected");
             
+        } catch (error) {
+            console.log("Error creating databases or collection", error);
         }
     }
+
+    return databases;
 }
